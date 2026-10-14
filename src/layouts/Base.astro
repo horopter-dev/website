@@ -10,6 +10,9 @@ interface Props {
 
 const { title, description, canonical = true } = Astro.props;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL("/social.png", Astro.site);
+const analyticsBeacon = JSON.stringify({ token: "99ff9992a2884b05b828bf25eac87aec" });
+const repository = "https://github.com/horopter-dev/horopter";
 ---
 
 <!doctype html>
@@ -21,6 +24,15 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <meta name="robots" content="noindex, nofollow" />
     {canonical && <link rel="canonical" href={canonicalUrl} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Horopter" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonicalUrl} />}
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link
       rel="icon"
       href="/brand/favicon.svg"
@@ -34,6 +46,12 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
       media="(prefers-color-scheme: dark)"
     />
     <script is:inline src="/theme.js"></script>
+    <script
+      is:inline
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={analyticsBeacon}
+    ></script>
   </head>
   <body class="flex min-h-screen flex-col bg-page font-sans text-ink antialiased">
     <header class="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
@@ -58,5 +76,24 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
     <main class="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6">
       <slot />
     </main>
+    <footer class="mx-auto w-full max-w-5xl px-6 py-10 text-sm text-ink/70">
+      <ul class="flex flex-wrap gap-x-6 gap-y-2">
+        <li>
+          <a class="hover:text-ink hover:underline" href={repository}>
+            GitHub
+          </a>
+        </li>
+        <li>
+          <a class="hover:text-ink hover:underline" href={`${repository}/blob/main/LICENSE`}>
+            Apache-2.0 licence
+          </a>
+        </li>
+        <li>
+          <a class="hover:text-ink hover:underline" href={`${repository}/security/policy`}>
+            Security policy
+          </a>
+        </li>
+      </ul>
+    </footer>
   </body>
 </html>

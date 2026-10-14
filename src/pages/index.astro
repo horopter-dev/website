@@ -1,9 +1,149 @@
 ---
 import Base from "#src/layouts/Base.astro";
+
+const docs = "https://docs.horopter.dev";
+
+const waysIn = [
+  {
+    title: "Try Horopter",
+    text:
+      "Run it on your machine in a few minutes: record a change, then see it on a Grafana " +
+      "graph.",
+    href: `${docs}/tutorials/try-horopter/`,
+  },
+  {
+    title: "Install",
+    text: "Run Horopter in Kubernetes with its Helm chart.",
+    href: `${docs}/how-to/install-kubernetes/`,
+  },
+  {
+    title: "Read the docs",
+    text: "Concepts, how-to guides and the reference.",
+    href: `${docs}/`,
+  },
+];
+
+const description =
+  "Horopter is a vendor-neutral store for change events. Deploys, rollouts and migrations go " +
+  "in from people, CI and cluster controllers, and show as regions on your Grafana graphs.";
+
+const panelAlt =
+  "A Grafana graph of request rate with a shaded region marking a deploy: the rate climbs " +
+  "inside the region, then falls back.";
 ---
 
-<Base title="Horopter" description="The Horopter project site.">
-  <section class="flex flex-1 flex-col justify-center py-24">
-    <p class="max-w-2xl text-3xl font-semibold">A project site for Horopter is on its way.</p>
+<Base
+  title="Horopter · See what changed, on the graphs you already watch"
+  description={description}
+>
+  <section class="py-16 sm:py-24">
+    <h1 class="max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+      See what changed, on the graphs you already watch.
+    </h1>
+    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink/80">
+      Horopter is a vendor-neutral store for change events. Deploys, rollouts, migrations and
+      incidents go in from people, CI and cluster controllers, and each one shows as a region on
+      your graphs: when it started, when it ended, and how.
+    </p>
+  </section>
+
+  <figure class="overflow-hidden rounded-xl border border-ink/15 shadow-sm">
+    <img
+      class="light-only h-auto w-full"
+      src="/panel/light.webp"
+      alt={panelAlt}
+      width="1200"
+      height="573"
+      decoding="async"
+    />
+    <img
+      class="dark-only h-auto w-full"
+      src="/panel/dark.webp"
+      alt={panelAlt}
+      width="1200"
+      height="573"
+      decoding="async"
+    />
+  </figure>
+
+  <section class="py-16 sm:py-24" aria-labelledby="ways-in">
+    <h2 id="ways-in" class="sr-only">
+      Get started
+    </h2>
+    <ul class="grid gap-4 sm:grid-cols-3">
+      {waysIn.map(({ title, text, href }) => (
+        <li>
+          <a
+            class:list={[
+              "group flex h-full flex-col gap-2 rounded-xl border border-ink/15 p-6",
+              "transition-colors hover:border-accent",
+            ]}
+            href={href}
+          >
+            <span class="text-lg font-semibold">
+              {title}
+              <span
+                aria-hidden="true"
+                class:list={[
+                  "ml-1 inline-block text-accent",
+                  "transition-transform group-hover:translate-x-0.5",
+                ]}
+              >
+                →
+              </span>
+            </span>
+            <span class="text-ink/80">{text}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="pb-16 sm:pb-24" aria-labelledby="works-with">
+    <h2 id="works-with" class="text-2xl font-semibold tracking-tight">
+      Works with
+    </h2>
+    <dl class="mt-6 grid gap-6 sm:grid-cols-3">
+      <div>
+        <dt class="font-semibold">
+          <a
+            class="underline decoration-accent underline-offset-4 hover:decoration-2"
+            href={`${docs}/how-to/flux/`}
+          >
+            Flux
+          </a>
+        </dt>
+        <dd class="mt-1 text-ink/80">
+          Every commit Flux applies and every HelmRelease rollout, as a change.
+        </dd>
+      </div>
+      <div>
+        <dt class="font-semibold">
+          <a
+            class="underline decoration-accent underline-offset-4 hover:decoration-2"
+            href={`${docs}/how-to/github-action/`}
+          >
+            GitHub Actions
+          </a>
+        </dt>
+        <dd class="mt-1 text-ink/80">
+          Each run of a deploy step, recorded by{" "}
+          <code class="font-mono text-[0.9em] whitespace-nowrap">record-action</code>.
+        </dd>
+      </div>
+      <div>
+        <dt class="font-semibold">
+          <a
+            class="underline decoration-accent underline-offset-4 hover:decoration-2"
+            href={`${docs}/how-to/grafana/`}
+          >
+            Grafana
+          </a>
+        </dt>
+        <dd class="mt-1 text-ink/80">
+          Changes drawn as regions on the dashboards you already have.
+        </dd>
+      </div>
+    </dl>
   </section>
 </Base>
