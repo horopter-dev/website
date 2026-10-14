@@ -61,6 +61,21 @@ placeholder text.
 oxlint lints `.astro` files, but oxfmt does not format them, so prettier with
 `prettier-plugin-astro` formats `.astro` files and nothing else. oxfmt formats everything else.
 
+## Deploying
+
+`deploy.yaml` builds the site with the same toolchain and uploads `dist/` to Cloudflare Pages
+with `wrangler pages deploy`, which is pinned in `package.json`. A push to `main` deploys
+production. A pull request from a branch in this repository deploys a preview at
+`<alias>.<project>.pages.dev`, which Cloudflare marks `noindex`; the alias is the branch name,
+lowercased, with every character other than a letter or digit turned into a hyphen, cut to
+28 characters. A pull request from a fork, or one Dependabot opens, gets no Actions secrets,
+so it gets no preview, and the job is skipped.
+
+The workflow reads three repository secrets: `CLOUDFLARE_API_TOKEN`, a token holding only
+Cloudflare Pages Edit, plus `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_PAGES_PROJECT`. The Pages
+project, the `www.horopter.dev` domain and these secrets are managed in
+[`horopter-dev/infrastructure`](https://github.com/horopter-dev/infrastructure).
+
 ## Licence
 
 Apache-2.0; see `LICENSE`.
