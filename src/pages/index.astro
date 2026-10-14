@@ -6,8 +6,8 @@ const httpApi = `${docs}/reference/http-api/`;
 
 const description =
   "Horopter is a vendor-neutral store for change events. It joins events from CI, cluster " +
-  "controllers and people into changes, and serves them to Grafana, OpenTelemetry tools, " +
-  "scripts and your own analysis.";
+  "controllers and people into changes, and serves them to Grafana, scripts and your own " +
+  "analysis.";
 
 const why = [
   {
@@ -25,8 +25,8 @@ const why = [
   {
     title: "Any reader",
     text:
-      "Grafana draws changes as regions on your graphs; OpenTelemetry tools read them as " +
-      "spans; anything that speaks HTTP reads them as they are.",
+      "Grafana draws changes as regions on your graphs; anything that speaks HTTP reads them " +
+      "as they are.",
   },
 ];
 
@@ -68,7 +68,6 @@ const worksWith = [
     label: "Read by",
     links: [
       { name: "Grafana", href: `${docs}/how-to/grafana/` },
-      { name: "OpenTelemetry (OTLP spans)", href: `${httpApi}#get-adaptersotlpspans` },
       { name: "the HTTP API", href: `${httpApi}#get-v1changes` },
     ],
   },
