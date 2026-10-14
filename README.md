@@ -102,7 +102,7 @@ oxlint lints `.astro` files, but oxfmt does not format them, so prettier with
 
 ## Deploying
 
-Sites are uploaded to Cloudflare Pages with `wrangler pages deploy`, which is pinned in
+The site is uploaded to Cloudflare Pages with `wrangler pages deploy`, which is pinned in
 `package.json`. A push to `main` runs `deploy.yaml`, which builds the site with the same
 toolchain and deploys production.
 
