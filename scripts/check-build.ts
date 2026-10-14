@@ -6,6 +6,7 @@ const siteOrigin = "https://www.horopter.dev";
 const robotsMeta = /<meta\s+name="robots"\s+content="([^"]*)"/i;
 const cspMeta = /<meta\s+http-equiv="content-security-policy"/i;
 const reference = /\s(?:href|src)="([^"]*)"/g;
+const ogImage = /<meta\s+property="og:image"\s+content="([^"]*)"/gi;
 const stylesheetUrl = /url\(\s*(["']?)([^"')]+)\1\s*\)/g;
 const notText = /<(script|style|pre|code)\b[^>]*>.*?<\/\1>/gis;
 const placeholder = /\{[\w.]+\}|\bTODO\b|\bundefined\b|\[object Object\]/g;
@@ -122,7 +123,9 @@ function checkPage(distDir: string, page: string): string[] {
     ...checkReferences(
       distDir,
       page,
-      Array.from(html.matchAll(reference), ([, target = ""]) => target),
+      [reference, ogImage].flatMap((pattern) =>
+        Array.from(html.matchAll(pattern), ([, target = ""]) => target),
+      ),
     ),
     ...Array.from(
       text.matchAll(placeholder),
@@ -135,8 +138,9 @@ function checkPage(distDir: string, page: string): string[] {
  * Checks a static build is fit to deploy to Cloudflare Pages: it has a 404.html, so Pages does
  * not serve the landing page for every path; robots.txt disallows all crawling and every page
  * carries a robots noindex meta tag, until the launch; both halves of the CSP are present, the
- * meta tag Astro writes on every page and the frame-ancestors header in _headers; every link and
- * asset on the site's own origin, in a page or a stylesheet, resolves to a file in the build;
+ * meta tag Astro writes on every page and the frame-ancestors header in _headers; every link,
+ * asset and Open Graph image on the site's own origin, in a page or a stylesheet, resolves to a
+ * file in the build;
  * and no page's text, outside code, holds what a template failed to render.
  *
  * Args:

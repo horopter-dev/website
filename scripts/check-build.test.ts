@@ -163,6 +163,18 @@ describe("checkBuild", () => {
     ]);
   });
 
+  it("checks the Open Graph image, and no other meta content", () => {
+    const head = [
+      csp,
+      `<meta name="description" content="Not a link">`,
+      `<meta property="og:image" content="https://www.horopter.dev/og.png">`,
+    ].join("");
+    expect(checkBuild(goodBuild({ "index.html": page("", head) }))).toEqual([
+      "index.html links https://www.horopter.dev/og.png, which is not in the build",
+    ]);
+    expect(checkBuild(goodBuild({ "index.html": page("", head), "og.png": "" }))).toEqual([]);
+  });
+
   it("reports a malformed link instead of failing", () => {
     expect(checkBuild(goodBuild({ "index.html": page(`<a href="/100%">x</a>`) }))).toEqual([
       "index.html links /100%, which is not a valid URL",
