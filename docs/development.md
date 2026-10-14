@@ -27,10 +27,10 @@ prek run --all-files
 ```
 
 `pnpm build` fails unless the build has a `404.html` (without one, Cloudflare Pages serves `/`
-for every unknown path), `robots.txt` disallows all crawling, every page carries a robots
-`noindex` meta tag and the CSP meta tag, `_headers` sets `frame-ancestors` for every path,
-every same-origin link, asset and Open Graph image resolves to a file in the build, and no page
-holds placeholder text.
+for every unknown path), `robots.txt` does not disallow all crawling, no page carries a robots
+`noindex` meta tag, every page carries the CSP meta tag, `_headers` sets `frame-ancestors` for
+every path, every same-origin link, asset and Open Graph image resolves to a file in the build,
+and no page holds placeholder text.
 
 oxlint lints `.astro` files, but oxfmt does not format them, so prettier with
 `prettier-plugin-astro` formats `.astro` files and nothing else. oxfmt formats everything else.

@@ -8,7 +8,6 @@ const csp = `<meta http-equiv="content-security-policy" content="script-src 'sel
 
 function page(body: string, head = csp): string {
   return `<!DOCTYPE html><html><head>${head}
-<meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="/_astro/a.css">
 <script src="/theme.js"></script>
 </head><body>${body}</body></html>`;
@@ -44,7 +43,7 @@ function goodBuild(overrides: Record<string, string | null> = {}): string {
     "index.html": page(`<a href="/">Home</a><a href="https://docs.horopter.dev/">Docs</a>`),
     "404.html": page(`<a href="/">Home</a>`),
     _headers: headers,
-    "robots.txt": "User-agent: *\nDisallow: /\n",
+    "robots.txt": "User-agent: *\nAllow: /\n",
     "theme.js": "",
     "_astro/a.css": [
       "@font-face{src:url(/_astro/a.woff2),url(b.woff)}",
@@ -57,7 +56,7 @@ function goodBuild(overrides: Record<string, string | null> = {}): string {
 }
 
 describe("checkBuild", () => {
-  it("accepts a build that is complete, not indexed and whose links resolve", () => {
+  it("accepts a build that is complete, open to search and whose links resolve", () => {
     expect(checkBuild(goodBuild())).toEqual([]);
   });
 
@@ -75,21 +74,27 @@ describe("checkBuild", () => {
     expect(checkBuild(goodBuild({ "robots.txt": null }))).toEqual(["robots.txt is missing"]);
   });
 
-  it("reports a robots.txt that does not disallow everything", () => {
-    expect(checkBuild(goodBuild({ "robots.txt": "User-agent: *\nAllow: /\n" }))).toEqual([
-      "robots.txt does not disallow all crawling: User-agent: * / Allow: /",
+  it("reports a robots.txt that disallows all crawling", () => {
+    expect(checkBuild(goodBuild({ "robots.txt": "User-agent: *\nDisallow: /\n" }))).toEqual([
+      "robots.txt disallows all crawling: User-agent: * / Disallow: /",
     ]);
   });
 
   it("reads robots.txt past comments", () => {
-    const robots = "# Until the launch.\nUser-agent: *\n# Everything.\nDisallow: / # all of it\n";
-    expect(checkBuild(goodBuild({ "robots.txt": robots }))).toEqual([]);
+    const robots = "# Closed.\nUser-agent: *\n# Everything.\nDisallow: / # all of it\n";
+    expect(checkBuild(goodBuild({ "robots.txt": robots }))).toEqual([
+      "robots.txt disallows all crawling: User-agent: * / Disallow: /",
+    ]);
   });
 
-  it("reports a page without a robots noindex meta tag", () => {
-    const html = page("").replace(/<meta name="robots"[^>]*>/, "");
+  it("accepts a robots.txt that disallows only one crawler", () => {
+    expect(checkBuild(goodBuild({ "robots.txt": "User-agent: Bot\nDisallow: /\n" }))).toEqual([]);
+  });
+
+  it("reports a page with a robots noindex meta tag", () => {
+    const html = page("", `${csp}<meta name="robots" content="noindex, nofollow">`);
     expect(checkBuild(goodBuild({ "index.html": html }))).toEqual([
-      'index.html has no <meta name="robots"> containing noindex',
+      'index.html has a <meta name="robots"> containing noindex',
     ]);
   });
 

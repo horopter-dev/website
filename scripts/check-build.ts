@@ -49,8 +49,8 @@ function checkRobotsTxt(distDir: string): string[] {
     .map((line) => line.replace(/#.*/, "").trim())
     .filter((line) => line !== "");
   return wildcardGroupDisallowsAll(lines)
-    ? []
-    : [`robots.txt does not disallow all crawling: ${lines.join(" / ")}`];
+    ? [`robots.txt disallows all crawling: ${lines.join(" / ")}`]
+    : [];
 }
 
 function headersFor(headersFile: string, pattern: string): string[] {
@@ -118,7 +118,7 @@ function checkPage(distDir: string, page: string): string[] {
   const noindex = robotsMeta.exec(html)?.[1]?.includes("noindex") ?? false;
   const text = html.replaceAll(notText, "");
   return [
-    ...(noindex ? [] : [`${page} has no <meta name="robots"> containing noindex`]),
+    ...(noindex ? [`${page} has a <meta name="robots"> containing noindex`] : []),
     ...(cspMeta.test(html) ? [] : [`${page} has no Content-Security-Policy meta tag`]),
     ...checkReferences(
       distDir,
@@ -136,8 +136,8 @@ function checkPage(distDir: string, page: string): string[] {
 
 /**
  * Checks a static build is fit to deploy to Cloudflare Pages: it has a 404.html, so Pages does
- * not serve the landing page for every path; robots.txt disallows all crawling and every page
- * carries a robots noindex meta tag, until the launch; both halves of the CSP are present, the
+ * not serve the landing page for every path; robots.txt does not disallow all crawling and no
+ * page carries a robots noindex meta tag; both halves of the CSP are present, the
  * meta tag Astro writes on every page and the frame-ancestors header in _headers; every link,
  * asset and Open Graph image on the site's own origin, in a page or a stylesheet, resolves to a
  * file in the build;
