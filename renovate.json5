@@ -1,0 +1,42 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+
+  // Two bots update this repository, each owning different pins. Dependabot keeps npm, the
+  // workflows' action SHAs and the pre-commit hooks (.github/dependabot.yaml). Renovate owns
+  // mise.toml and the runner image. enabledManagers is what keeps them apart: a manager not
+  // listed here does not run, so Renovate never edits a file Dependabot owns; github-actions runs
+  // only for runner images. Renovate runs from horopter-dev/infrastructure's workflow, whose cron
+  // is the only schedule; do not add a `schedule` here.
+  extends: ["config:recommended"],
+  enabledManagers: ["mise", "github-actions"],
+
+  // Policy shared by every horopter-dev repository Renovate updates; keep the copies alike.
+  semanticCommits: "enabled",
+  dependencyDashboard: true,
+  // The same cooldown as Dependabot's. Vulnerability fixes skip it.
+  minimumReleaseAge: "7 days",
+  // A release with no timestamp is proposed without the cooldown instead of never.
+  minimumReleaseAgeBehaviour: "timestamp-optional",
+  // The default hourly limit throttles a bot that runs continuously; a cron run is one hour.
+  prHourlyLimit: 0,
+  prConcurrentLimit: 10,
+  osvVulnerabilityAlerts: true,
+  vulnerabilityAlerts: {
+    semanticCommitType: "fix",
+    labels: ["security"],
+  },
+
+  packageRules: [
+    {
+      // Majors wait longer: they are the ones that get emergency-patched.
+      matchUpdateTypes: ["major"],
+      minimumReleaseAge: "14 days",
+    },
+    {
+      // Action SHAs are Dependabot's; only runs-on images are Renovate's.
+      matchManagers: ["github-actions"],
+      matchDatasources: ["!github-runners"],
+      enabled: false,
+    },
+  ],
+}

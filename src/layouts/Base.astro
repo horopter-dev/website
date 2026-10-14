@@ -1,0 +1,62 @@
+---
+import "#src/styles/global.css";
+import ThemeToggle from "#src/components/ThemeToggle.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: boolean;
+}
+
+const { title, description, canonical = true } = Astro.props;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
+    {canonical && <link rel="canonical" href={canonicalUrl} />}
+    <link
+      rel="icon"
+      href="/brand/favicon.svg"
+      type="image/svg+xml"
+      media="(prefers-color-scheme: light)"
+    />
+    <link
+      rel="icon"
+      href="/brand/favicon-dark.svg"
+      type="image/svg+xml"
+      media="(prefers-color-scheme: dark)"
+    />
+    <script is:inline src="/theme.js"></script>
+  </head>
+  <body class="flex min-h-screen flex-col bg-page font-sans text-ink antialiased">
+    <header class="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
+      <a href="/" aria-label="Horopter home">
+        <img
+          class="light-only h-8 w-auto"
+          src="/brand/lockup.svg"
+          alt="Horopter"
+          width="5340"
+          height="1178"
+        />
+        <img
+          class="dark-only h-8 w-auto"
+          src="/brand/lockup-dark.svg"
+          alt="Horopter"
+          width="5340"
+          height="1178"
+        />
+      </a>
+      <ThemeToggle />
+    </header>
+    <main class="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6">
+      <slot />
+    </main>
+  </body>
+</html>

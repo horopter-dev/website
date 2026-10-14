@@ -1,0 +1,60 @@
+@import "tailwindcss" source("../");
+@source not "../**/*.test.ts";
+@import "@fontsource/red-hat-display/400.css";
+@import "@fontsource/red-hat-display/600.css";
+@import "@fontsource/red-hat-mono/400.css";
+
+@theme {
+  --font-sans: "Red Hat Display", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Red Hat Mono", ui-monospace, monospace;
+  --color-accent: #128897;
+  --color-ink: var(--ink);
+  --color-page: var(--page);
+}
+
+/* Light by default; dark when chosen, or when the system asks and nothing else was chosen,
+   which also covers a reader with JavaScript off. */
+:root {
+  --ink: #10161b;
+  --page: #ffffff;
+  color-scheme: light dark;
+}
+
+:root.light {
+  color-scheme: light;
+}
+
+:root.dark {
+  --ink: #e6edf1;
+  --page: #10161b;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --ink: #e6edf1;
+    --page: #10161b;
+  }
+}
+
+.dark-only {
+  display: none;
+}
+
+:root.dark .light-only {
+  display: none;
+}
+
+:root.dark .dark-only {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .light-only {
+    display: none;
+  }
+
+  :root:not(.light) .dark-only {
+    display: block;
+  }
+}
