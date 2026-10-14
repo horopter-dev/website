@@ -1,0 +1,71 @@
+name: Preview
+
+# Deploys the site CI built for a pull request. workflow_run always runs this file and its
+# lockfile as they are on main, so no code from the pull request runs here: it supplies only
+# the static files in its artifact.
+on:
+  workflow_run: # zizmor: ignore[dangerous-triggers] runs main's code only; the PR supplies files
+    workflows: [CI]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  deploy:
+    name: Deploy
+    # A fork's branch name is its own to choose, so only this repository's branches get a
+    # preview, and never one named main, which Cloudflare would publish as production.
+    # Dependabot's pull requests are skipped too: a dependency bump needs no preview.
+    if: >-
+      github.event.workflow_run.event == 'pull_request'
+      && github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.head_repository.full_name == github.repository
+      && github.event.workflow_run.head_branch != 'main'
+      && github.event.workflow_run.actor.login != 'dependabot[bot]'
+    runs-on: ubuntu-26.04
+    # On the job, not the workflow, so a run whose job is skipped cancels nothing. A newer
+    # build of a branch cancels the deploy of its older one.
+    concurrency:
+      group: preview-${{ github.event.workflow_run.head_branch }}
+      cancel-in-progress: true
+    # The Cloudflare secrets live only on environments that accept runs on main.
+    environment: preview
+    permissions:
+      actions: read # to download the artifact from CI's run
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          install_args: node pnpm
+          cache: false
+      # Installs wrangler from main's lockfile.
+      - run: pnpm install --frozen-lockfile
+      # Outside the workspace, so the artifact cannot replace anything this job runs.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: site
+          path: ${{ runner.temp }}/site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      # wrangler deploys a _worker.js in the folder as the preview's Worker, which would run the
+      # pull request's code on Cloudflare.
+      - name: Refuse a Worker
+        run: |
+          if [ -e "$RUNNER_TEMP/site/_worker.js" ]; then
+            echo "::error::The site holds _worker.js; previews deploy static files only." >&2
+            exit 1
+          fi
+      # The preview is at <alias>.<project>.pages.dev, where the alias is the branch name
+      # lowercased, each other character a hyphen, cut to 28.
+      - run: >-
+          pnpm exec wrangler pages deploy "$RUNNER_TEMP/site" --project-name="$PROJECT"
+          --branch="$BRANCH" --commit-hash="$COMMIT"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          COMMIT: ${{ github.event.workflow_run.head_sha }}
