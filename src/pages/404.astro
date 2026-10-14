@@ -1,0 +1,18 @@
+---
+import Base from "#src/layouts/Base.astro";
+---
+
+<Base title="Page not found · Horopter" description="This page does not exist." canonical={false}>
+  <section class="flex flex-1 flex-col justify-center gap-6 py-24">
+    <h1 class="text-3xl font-semibold">Page not found</h1>
+    <p>There is nothing at this address.</p>
+    <p class="flex gap-6">
+      <a class="underline underline-offset-4" href="/">
+        Home
+      </a>
+      <a class="underline underline-offset-4" href="https://docs.horopter.dev/">
+        Documentation
+      </a>
+    </p>
+  </section>
+</Base>
