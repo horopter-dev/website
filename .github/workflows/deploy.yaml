@@ -1,0 +1,46 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+# One production deploy at a time; a newer push to a pull request cancels its older preview.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  deploy:
+    name: Deploy
+    # A pull request from a fork, or one Dependabot opens, gets no Actions secrets, so it gets
+    # no preview; the skipped job passes.
+    if: >-
+      github.event_name == 'push'
+      || (github.event.pull_request.head.repo.full_name == github.repository
+          && github.actor != 'dependabot[bot]')
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # No cache in the job that produces what is published.
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          install_args: node pnpm
+          cache: false
+      - run: pnpm install --frozen-lockfile
+      # Builds to dist/, then runs scripts/check-build.ts over it.
+      - run: pnpm build
+      # main is production; any other branch is a preview at <alias>.<project>.pages.dev, where
+      # the alias is the branch name lowercased, each other character a hyphen, cut to 28.
+      - run: pnpm exec wrangler pages deploy dist --project-name="$PROJECT" --branch="$BRANCH"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
