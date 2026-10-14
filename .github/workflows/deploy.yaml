@@ -3,6 +3,8 @@ name: Deploy
 on:
   push:
     branches: [main]
+  # Redeploys main by hand. The production environment refuses a run on any other branch.
+  workflow_dispatch:
 
 permissions: {}
 
