@@ -104,7 +104,8 @@ oxlint lints `.astro` files, but oxfmt does not format them, so prettier with
 
 The site is uploaded to Cloudflare Pages with `wrangler pages deploy`, which is pinned in
 `package.json`. A push to `main` runs `deploy.yaml`, which builds the site with the same
-toolchain and deploys production.
+toolchain and deploys production. To redeploy `main` without a push, run
+`gh workflow run deploy.yaml --ref main`.
 
 A pull request's code never runs beside the deploy token. CI builds the site and uploads
 `dist/` as an artifact; once CI passes, `preview.yaml`, which `workflow_run` always runs as it
