@@ -17,6 +17,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-26.04
+    timeout-minutes: 5
     # The Cloudflare secrets live only on environments that accept runs on main.
     environment:
       name: production
