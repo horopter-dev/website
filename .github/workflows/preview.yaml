@@ -23,11 +23,13 @@ jobs:
       && github.event.workflow_run.head_branch != 'main'
       && github.event.workflow_run.actor.login != 'dependabot[bot]'
     runs-on: ubuntu-26.04
-    # On the job, not the workflow, so a run whose job is skipped cancels nothing. A newer
-    # build of a branch cancels the deploy of its older one.
+    timeout-minutes: 5
+    # On the job, not the workflow, so a run whose job is skipped waits on nothing. A running
+    # deploy finishes; a newer build of the branch replaces any that is waiting, so the
+    # latest one deploys last.
     concurrency:
       group: preview-${{ github.event.workflow_run.head_branch }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     # The Cloudflare secrets live only on environments that accept runs on main.
     environment: preview
     permissions:
