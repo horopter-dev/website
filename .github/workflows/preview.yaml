@@ -4,7 +4,9 @@ name: Preview
 # lockfile as they are on main, so no code from the pull request runs here: it supplies only
 # the static files in its artifact.
 on:
-  workflow_run: # zizmor: ignore[dangerous-triggers] runs main's code only; the PR supplies files
+  # runs main's code only; the PR supplies files
+  # jactionlint ignore=dangerous-triggers
+  workflow_run:
     workflows: [CI]
     types: [completed]
 
