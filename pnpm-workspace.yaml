@@ -7,3 +7,8 @@ ignoreScripts: true
 engineStrict: true
 
 savePrefix: ""
+
+# miniflare pins undici 7.29.1 exactly (still so in wrangler 4.152.0), below the 7.30.1 fix
+# for GHSA-xjj6-f33q-929c and two moderates. Drop it once miniflare pins 7.30.1 or later.
+overrides:
+  miniflare>undici: 7.30.1
